@@ -3,36 +3,38 @@ require "logger"
 require "tempfile"
 
 describe Counters::File do
-  let! :tempfile do
+  TIMESTAMP_RE = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,}/
+
+  let :tempfile do
     Tempfile.new("counters.log")
   end
 
-  let! :counter do
+  let :counter do
     Counters::File.new(tempfile)
   end
 
   it "should log a message to the logfile when a hit is recorded" do
     counter.hit "urls.visited"
     tempfile.rewind
-    tempfile.read.should =~ /hit.*urls\.visited/i
+    tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\shit.*urls\.visited$/
   end
 
   it "should log a message to the logfile when a magnitude is recorded" do
     counter.magnitude "bytes.read", 2_013
     tempfile.rewind
-    tempfile.read.should =~ /magnitude.*bytes\.read.*2013/
+    tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\smagnitude.*bytes\.read.*2013$/
   end
 
   it "should log a message to the logfile when a latency is recorded" do
     counter.latency "processing", 0.132 # in seconds
     tempfile.rewind
-    tempfile.read.should =~ /latency.*processing.*0.132s/
+    tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\slatency.*processing.*0.132s$/
   end
 
   it "should record a message in the logfile when a ping is recorded" do
     counter.ping "crawler.alive"
     tempfile.rewind
-    tempfile.read.should =~ /ping.*crawler\.alive\s+\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3,}/
+    tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\sping.*crawler\.alive$/
   end
 
   it "should log a message to the logfile when a latency is recorded using a block" do
@@ -47,9 +49,7 @@ describe Counters::File do
   it "should raise an ArgumentError when calling #latency with both a block and a latency" do
     lambda { counter.latency("processing", 0.123) { sleep 0.1 } }.should raise_error(ArgumentError)
   end
-end
 
-describe Counters::File do
   it "should accept a filename on instantiation" do
     Counters::File.new("counters.log")
   end
