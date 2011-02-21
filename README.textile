@@ -1,0 +1,31 @@
+h1. Counters
+
+Easily record any metric from anywhere within your system. Metrics are recorded to Redis (using the provided backend), in a single Hash key. You can then extract the keys later and use them with Cacti to generate graphs about anything going on.
+
+h2. Sample Usage
+
+Let's say you have a crawler. You'd like to record the number of URLs you visit, the number of URLs you skipped due to 304 Not Modified responses, and the number of bytes you consumed, and the amount of time each page takes to process. Here's how you'd do that:
+
+<pre><code>require "counters"
+require "rest_client"
+Counter = Counters::Redis.new(Redis.new, "counters")
+
+while url = STDIN.gets
+  Counter.hit "crawler.urls"
+
+  response = RestClient.get(url)
+  Counter.magnitude "crawler.bytes.read", response.length
+  next Counter.hit "crawler.urls.skipped" if response.code == 304
+
+  Counter.latency "crawler.processing" do
+    # some long and complicated processing
+  end
+end
+</code></pre>
+
+Redis will have a single key, named counters here, with the following keys and values in it (after 1 call with a 200 response code):
+
+* hits.crawler.urls = 1
+* magnitudes.crawler.bytes.read = 2041
+* latencies.crawler.processing.count = 1
+* latencies.crawler.processing.nanoseconds = 381000000
