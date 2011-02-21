@@ -1,3 +1,4 @@
+require "benchmark"
 require "counters"
 
 module Counters
@@ -16,6 +17,17 @@ module Counters
 
     def ping(key)
       @redis.hset(@base_key, "pings.#{key}", Time.now.to_i)
+    end
+
+    def latency(key, latency=nil)
+      if block_given? then
+        bm = Benchmark.measure { yield }
+        @redis.hincrby(@base_key, "latencies.#{key}.count", 1)
+        @redis.hincrby(@base_key, "latencies.#{key}.seconds", bm.real)
+      else
+        @redis.hincrby(@base_key, "latencies.#{key}.count", 1)
+        @redis.hincrby(@base_key, "latencies.#{key}.seconds", latency)
+      end
     end
   end
 end
