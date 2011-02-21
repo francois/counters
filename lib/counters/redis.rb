@@ -9,5 +9,9 @@ module Counters
     def hit(key)
       @redis.hincrby(@base_key, "hits.#{key}", 1)
     end
+
+    def magnitude(key, amount)
+      @redis.hincrby(@base_key, "magnitudes.#{key}", amount)
+    end
   end
 end
