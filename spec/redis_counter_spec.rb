@@ -26,16 +26,16 @@ describe Counters::Redis do
     end
   end
 
-  it "should record latency on 'crawler.download' by HINCRBY counters/latencies.crawler.download.count by 1 and counters/latencies.crawler.download.seconds by the latency" do
+  it "should record latency on 'crawler.download' by HINCRBY counters/latencies.crawler.download.count by 1 and counters/latencies.crawler.download.nanoseconds by the latency" do
     redis.should_receive(:hincrby).with("counters", "latencies.crawler.download.count", 1).once
-    redis.should_receive(:hincrby).with("counters", "latencies.crawler.download.seconds", 208).once
+    redis.should_receive(:hincrby).with("counters", "latencies.crawler.download.nanoseconds", 208 * 1_000_000_000).once
     counter.latency "crawler.download", 208
   end
 
   it "should record a block's latency" do
     redis.should_receive(:hincrby).with("counters", "latencies.crawler.process.count", 1).once
     redis.should_receive(:hincrby).once.with do |key, subkey, latency|
-      key == "counters" && subkey == "latencies.crawler.process.seconds" && latency >= 0.2 && latency < 0.3
+      key == "counters" && subkey == "latencies.crawler.process.nanoseconds" && latency >= 0.2 * 1_000_000_000 && latency < 0.3 * 1_000_000_000
     end
     counter.latency "crawler.process" do
       sleep 0.2

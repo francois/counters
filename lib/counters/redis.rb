@@ -19,15 +19,14 @@ module Counters
       @redis.hset(@base_key, "pings.#{key}", Time.now.to_i)
     end
 
-    def latency(key, latency=nil)
-      if block_given? then
-        bm = Benchmark.measure { yield }
-        @redis.hincrby(@base_key, "latencies.#{key}.count", 1)
-        @redis.hincrby(@base_key, "latencies.#{key}.seconds", bm.real)
-      else
-        @redis.hincrby(@base_key, "latencies.#{key}.count", 1)
-        @redis.hincrby(@base_key, "latencies.#{key}.seconds", latency)
-      end
+    # Redis requires integer keys, thus we scale all latencies to the nanosecond precision
+    SCALING_FACTOR = 1_000_000_000
+
+    def latency(key, latency_in_seconds=nil)
+      latency_in_seconds = Benchmark.measure { yield }.real if block_given?
+
+      @redis.hincrby(@base_key, "latencies.#{key}.count", 1)
+      @redis.hincrby(@base_key, "latencies.#{key}.nanoseconds", (latency_in_seconds * SCALING_FACTOR).to_i)
     end
   end
 end
