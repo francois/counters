@@ -55,25 +55,19 @@ describe Counters::File do
   end
 
   it "should accept a File instance on instantiation" do
-    begin
-      file = File.open("counters.log", "w")
-      Counters::File.new(file)
-    ensure
-      File.unlink(file) if file
-    end
+    Counters::File.new( File.open("counters.log", "w") )
   end
 
   it "should accept a Logger instance on instantiation" do
-    logger = nil
-    begin
-      logger = Logger.new(File.open("counters.log", "w"))
-      Counters::File.new(logger)
-    ensure
-      logger.close if logger
-    end
+    Counters::File.new( Logger.new("counters.log") )
   end
 
   it "should raise an ArgumentError when a bad type is used in the initializer" do
     lambda { Counters::File.new(nil) }.should raise_error(ArgumentError)
+  end
+
+  after(:each) do
+    fname = File.dirname(__FILE__) + "/../counters.log"
+    File.unlink(fname) if File.exist?(fname)
   end
 end
