@@ -2,7 +2,7 @@ require "benchmark"
 require "logger"
 
 module Counters
-  class File
+  class File < Counters::Base
     def initialize(path_or_io_or_logger)
       @file = if path_or_io_or_logger.kind_of?(Logger) then
                 path_or_io_or_logger
@@ -13,21 +13,20 @@ module Counters
               end
     end
 
-    def hit(key)
+    def record_hit(key)
       @file.info "hit: #{key}"
     end
 
-    def magnitude(key, magnitude)
+    def record_magnitude(key, magnitude)
       @file.info "magnitude: #{key} #{magnitude}"
     end
 
-    def latency(key, time_in_seconds=nil)
-      if block_given? then
-        raise ArgumentError, "Must pass either a latency or a block, not both: received #{time_in_seconds.inspect} in addition to a block" if time_in_seconds
-        time_in_seconds = Benchmark.measure { yield }.real
-      end
-
+    def record_latency(key, time_in_seconds=nil)
       @file.info "latency: #{key} #{time_in_seconds}s"
+    end
+
+    def record_ping(key)
+      @file.info "ping: #{key} #{Time.now.utc.strftime("%Y-%m-%d %H:%M:%S.%N")}"
     end
   end
 end

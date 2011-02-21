@@ -29,6 +29,12 @@ describe Counters::File do
     tempfile.read.should =~ /latency.*processing.*0.132s/
   end
 
+  it "should record a message in the logfile when a ping is recorded" do
+    counter.ping "crawler.alive"
+    tempfile.rewind
+    tempfile.read.should =~ /ping.*crawler\.alive\s+\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3,}/
+  end
+
   it "should log a message to the logfile when a latency is recorded using a block" do
     counter.latency "crawling" do
       sleep 0.1

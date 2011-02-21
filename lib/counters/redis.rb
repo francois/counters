@@ -2,16 +2,16 @@ require "benchmark"
 require "counters"
 
 module Counters
-  class Redis
+  class Redis < Counters::Base
     def initialize(redis, base_key)
       @redis, @base_key = redis, base_key
     end
 
-    def hit(key)
+    def record_hit(key)
       @redis.hincrby(@base_key, "hits.#{key}", 1)
     end
 
-    def magnitude(key, amount)
+    def record_magnitude(key, amount)
       @redis.hincrby(@base_key, "magnitudes.#{key}", amount)
     end
 
@@ -22,9 +22,7 @@ module Counters
     # Redis requires integer keys, thus we scale all latencies to the nanosecond precision
     SCALING_FACTOR = 1_000_000_000
 
-    def latency(key, latency_in_seconds=nil)
-      latency_in_seconds = Benchmark.measure { yield }.real if block_given?
-
+    def record_latency(key, latency_in_seconds)
       @redis.hincrby(@base_key, "latencies.#{key}.count", 1)
       @redis.hincrby(@base_key, "latencies.#{key}.nanoseconds", (latency_in_seconds * SCALING_FACTOR).to_i)
     end
