@@ -1,2 +1,4 @@
-require "counters/redis"
-require "counters/memory"
+module Counters
+  autoload :Redis, "counters/redis"
+  autoload :Memory, "counters/memory"
+end

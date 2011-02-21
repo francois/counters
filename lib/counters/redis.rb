@@ -1,3 +1,5 @@
+require "counters"
+
 module Counters
   class Redis
     def initialize(redis, base_key)

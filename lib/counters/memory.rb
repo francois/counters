@@ -1,3 +1,5 @@
+require "counters"
+
 module Counters
   class Memory
     attr_reader :hits

@@ -1,2 +1,1 @@
-require "counters/memory"
-require "counters/redis"
+require "counters"
