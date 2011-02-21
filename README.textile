@@ -29,3 +29,31 @@ Redis will have a single key, named counters here, with the following keys and v
 * magnitudes.crawler.bytes.read = 2041
 * latencies.crawler.processing.count = 1
 * latencies.crawler.processing.nanoseconds = 381000000
+
+h2. Other Implementations
+
+For testing purposes, there also exists a <code>Counters::Memory</code>. This would be good in test mode, for example. The counters are exposed through accessor methods returning a Hash.
+
+For file logging, you should use <code>Counters::File</code>, which accepts a <code>String</code>, <code>IO</code> or <code>Logger</code> instance. All of these will be transformed to a <code>Logger</code> instance with a very strict format. All events will be logged to the file, one event per line.
+
+<pre><code>$ irb -r counters
+> Counter = Counters::File.new("counters.log")
+ => #<Counters::File:0x00000101a18f18 @logger=#<Logger:0x00000101a18ef0 @progname=nil, @level=0, @default_formatter=#<Logger::Formatter:0x00000101a18ea0 @datetime_format=nil>, @formatter=#<Proc:0x00000101a18bd0@/Users/francois/Projects/counters/lib/counters/file.rb:15 (lambda)>, @logdev=#<Logger::LogDevice:0x00000101a18e28 @shift_size=1048576, @shift_age=0, @filename="counters.log", @dev=#<File:counters.log>, @mutex=#<Logger::LogDevice::LogDeviceMutex:0x00000101a18e00 @mon_owner=nil, @mon_count=0, @mon_mutex=#<Mutex:0x00000101a18d88>>>>> 
+> Counter.hit "crawler.page_read"
+ => true 
+> Counter.magnitude "crawler.bytes_in", 9_921
+ => true 
+> Counter.latency "crawler.processing" do sleep 0.3 ; end
+ => true 
+> Counter.ping "crawler.alive"
+ => true 
+
+$ cat counters.log
+2011-02-21T09:46:21.296326000 - hit: crawler.page_read
+2011-02-21T09:46:24.280388000 - magnitude: crawler.bytes_in 9921
+2011-02-21T09:46:27.989183000 - latency: crawler.processing 0.3001821041107178s
+2011-02-21T09:46:31.031969000 - ping: crawler.alive
+2011-02-21T09:46:21.296326000 - hit: crawler.page_read
+2011-02-21T09:46:24.280388000 - magnitude: crawler.bytes_in 13291
+2011-02-21T09:46:27.989183000 - latency: crawler.processing 0.3123122982101s
+</code></pre>
