@@ -18,4 +18,11 @@ describe Counters::Redis do
     redis.should_receive(:hincrby).with("counters", "magnitudes.bytes.in", 309)
     counter.magnitude "bytes.in", 309
   end
+
+  it "should record a ping on 'crawler' by HSET counters/pings.crawler with today's date/time as an int" do
+    Timecop.freeze do
+      redis.should_receive(:hset).with("counters", "pings.crawler", Time.now.utc.to_i)
+      counter.ping "crawler"
+    end
+  end
 end

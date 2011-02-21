@@ -13,5 +13,9 @@ module Counters
     def magnitude(key, amount)
       @redis.hincrby(@base_key, "magnitudes.#{key}", amount)
     end
+
+    def ping(key)
+      @redis.hset(@base_key, "pings.#{key}", Time.now.to_i)
+    end
   end
 end
