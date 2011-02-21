@@ -12,7 +12,7 @@ module Counters
                 raise ArgumentError, "Counters::File expects an object which is either a Logger or respond to #<<, received a #{path_or_io_or_logger.class}"
               end
 
-      @logger.formatter = lambda {|severity, datetime, progname, msg| "#{datetime.strftime("%Y-%m-%dT%H:%M:%S.%N")} - #{msg}"}
+      @logger.formatter = lambda {|severity, datetime, progname, msg| "#{datetime.strftime("%Y-%m-%dT%H:%M:%S.%N")} - #{msg}\n"}
     end
 
     def record_hit(key)
