@@ -1,14 +1,17 @@
 module Counters
   class Base
     def hit(key)
+      validate(key)
       record_hit(key)
     end
 
     def magnitude(key, value)
+      validate(key)
       record_magnitude(key, value)
     end
 
     def latency(key, time_in_seconds=nil)
+      validate(key)
       if block_given? then
         raise ArgumentError, "Must pass either a latency or a block, not both: received #{time_in_seconds.inspect} in addition to a block" if time_in_seconds
         time_in_seconds = Benchmark.measure { yield }.real
@@ -18,6 +21,7 @@ module Counters
     end
 
     def ping(key)
+      validate(key)
       record_ping(key)
     end
 
@@ -40,5 +44,10 @@ module Counters
       raise "Subclass Responsibility Error: must be implemented in instances of #{self.class} but isn't"
     end
     protected :record_ping
+
+    def validate(key)
+      key.to_s =~ /\A[.\w]+\Z/i or raise Counters::InvalidKey, "Keys can contain only letters, numbers, the underscore (_) and fullstop (.), received #{key.inspect}"
+    end
+    private :validate
   end
 end

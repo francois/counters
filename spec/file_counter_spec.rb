@@ -13,6 +13,8 @@ describe Counters::File do
     Counters::File.new(tempfile)
   end
 
+  it_should_behave_like "all counters"
+
   it "should log a message to the logfile when a hit is recorded" do
     counter.hit "urls.visited"
     tempfile.rewind

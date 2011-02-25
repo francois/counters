@@ -5,6 +5,8 @@ describe Counters::Memory do
     Counters::Memory.new
   end
 
+  it_should_behave_like "all counters"
+
   it "should record a hit with key 'pages.read'" do
     counter.hit "pages.read"
     counter.hits.should have_key("pages.read")

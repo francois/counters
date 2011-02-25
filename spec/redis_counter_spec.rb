@@ -9,6 +9,8 @@ describe Counters::Redis do
     Counters::Redis.new(redis, "counters")
   end
 
+  it_should_behave_like "all counters"
+
   it "should record a hit on 'pages.read' by HINCRBY counters/hits.pages.read" do
     redis.should_receive(:hincrby).with("counters", "hits.pages.read", 1).twice
     2.times { counter.hit "pages.read" }
