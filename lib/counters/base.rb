@@ -11,13 +11,15 @@ module Counters
     end
 
     def latency(key, time_in_seconds=nil)
+      result = nil
       validate(key)
       if block_given? then
         raise ArgumentError, "Must pass either a latency or a block, not both: received #{time_in_seconds.inspect} in addition to a block" if time_in_seconds
-        time_in_seconds = Benchmark.measure { yield }.real
+        time_in_seconds = Benchmark.measure { result = yield }.real
       end
 
       record_latency(key, time_in_seconds)
+      result
     end
 
     def ping(key)
