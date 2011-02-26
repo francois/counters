@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["François Beausoleil"]
   s.email       = ["francois@teksol.info"]
-  s.homepage    = ""
+  s.homepage    = "https://github.com/francois/counters"
   s.summary     = %q{Provides an API to record any kind of metrics within your system}
   s.description = %q{Using the provided API, record metrics (such as number of hits to a particular controller, bytes in/out, compression ratio) within your system. Visualization is NOT provided within this gem.}
 
