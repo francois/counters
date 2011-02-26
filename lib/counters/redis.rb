@@ -12,7 +12,7 @@ module Counters
     end
 
     def record_magnitude(key, amount)
-      @redis.hincrby(@base_key, "magnitudes.#{key}", amount)
+      @redis.hset(@base_key, "magnitudes.#{key}", amount)
     end
 
     def ping(key)

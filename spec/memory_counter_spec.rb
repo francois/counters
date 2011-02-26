@@ -42,6 +42,6 @@ describe Counters::Memory do
   it "should record a magnitude" do
     counter.magnitude "processor.bytes_compressed", 9_312
     counter.magnitude "processor.bytes_compressed", 8_271
-    counter.magnitudes["processor.bytes_compressed"].should == (9_312 + 8_271)
+    counter.magnitudes["processor.bytes_compressed"].should == 8_271
   end
 end

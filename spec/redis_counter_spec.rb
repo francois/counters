@@ -16,9 +16,9 @@ describe Counters::Redis do
     2.times { counter.hit "pages.read" }
   end
 
-  it "should record a magnitude on 'bytes.in' by HINCRBY counters/magnitudes.bytes.in" do
-    redis.should_receive(:hincrby).with("counters", "magnitudes.bytes.in", 309).once
-    redis.should_receive(:hincrby).with("counters", "magnitudes.bytes.in", 392).once
+  it "should record a magnitude on 'bytes.in' by HSET counters/magnitudes.bytes.in" do
+    redis.should_receive(:hset).with("counters", "magnitudes.bytes.in", 309).once
+    redis.should_receive(:hset).with("counters", "magnitudes.bytes.in", 392).once
     counter.magnitude "bytes.in", 309
     counter.magnitude "bytes.in", 392
   end

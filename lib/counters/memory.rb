@@ -24,7 +24,7 @@ module Counters
     end
 
     def record_magnitude(key, value)
-      @magnitudes[key] += value
+      @magnitudes[key] = value
     end
   end
 end

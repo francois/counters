@@ -46,7 +46,7 @@ module Counters
     protected :record_ping
 
     def validate(key)
-      key.to_s =~ /\A[.\w]+\Z/i or raise Counters::InvalidKey, "Keys can contain only letters, numbers, the underscore (_) and fullstop (.), received #{key.inspect}"
+      key.to_s =~ /\A[.\w]+\Z/i or raise ArgumentError, "Keys can contain only letters, numbers, the underscore (_) and fullstop (.), received #{key.inspect}"
     end
     private :validate
   end
