@@ -29,4 +29,12 @@ shared_examples_for "all counters" do
   it "should not raise ArgumentError when the key includes an underscore" do
     lambda { counter.hit "hit_" }.should_not raise_error(ArgumentError)
   end
+
+  it "should return the latency block's value" do
+    value = counter.latency "process" do
+      "the returned value"
+    end
+
+    value.should == "the returned value"
+  end
 end
