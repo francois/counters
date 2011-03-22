@@ -1,9 +1,11 @@
 require "benchmark"
-require "counters"
+
+# The redis gem must already be required - we don't require it.
+# This allows callers / users to use any implementation that has the right API.
 
 module Counters
   class Redis < Counters::Base
-    def initialize(redis, base_key)
+    def initialize(redis=Redis.new, base_key="counters")
       @redis, @base_key = redis, base_key
     end
 

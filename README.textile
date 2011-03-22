@@ -7,6 +7,7 @@ h2. Sample Usage
 Let's say you have a crawler. You'd like to record the number of URLs you visit, the number of URLs you skipped due to 304 Not Modified responses, and the number of bytes you consumed, and the amount of time each page takes to process. Here's how you'd do that:
 
 <pre><code>require "counters"
+require "redis"
 require "rest_client"
 Counter = Counters::Redis.new(Redis.new, "counters")
 

@@ -17,6 +17,10 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
+  # Eventually, we might have something like this
+  # s.add_optional_dependency "redis"
+  s.add_development_dependency "redis"
+
   s.add_development_dependency "rspec"
   s.add_development_dependency "timecop"
 end
