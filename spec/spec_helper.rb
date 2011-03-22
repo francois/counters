@@ -1,6 +1,12 @@
 require "counters"
 require "timecop"
 
+begin
+  require "ruby-debug"
+rescue LoadError
+  # Optional dependency - ignoring
+end
+
 shared_examples_for "all counters" do
   it "should raise a ArgumentError when the key includes invalid chars" do
     lambda { counter.hit "hit!"        } .should raise_error(ArgumentError)
