@@ -15,6 +15,43 @@ describe Counters::File do
 
   it_should_behave_like "all counters"
 
+  context "#initialize" do
+    it "should accept a namepsace in options" do
+      counter = Counters::File.new(tempfile, :namespace => "wine")
+      counter.namespace.should == "wine"
+    end
+  end
+
+  context "given the counter is namespaced" do
+    it "should namespace the key from #hit" do
+      counter.namespace = "juice"
+      counter.hit "foxglove"
+      tempfile.rewind
+      tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\shit:\sjuice\.foxglove$/
+    end
+
+    it "should namespace the key from #latency" do
+      counter.namespace = "cocktail"
+      counter.latency "angelica", 200
+      tempfile.rewind
+      tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\slatency:\scocktail\.angelica\s200s$/
+    end
+
+    it "should namespace the key from #magnitude" do
+      counter.namespace = "brew"
+      counter.magnitude "crocus", 100
+      tempfile.rewind
+      tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\smagnitude:\sbrew\.crocus 100$/
+    end
+
+    it "should namespace the key from #ping" do
+      counter.namespace = "beer"
+      counter.ping "tulip"
+      tempfile.rewind
+      tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\sping:\sbeer\.tulip$/
+    end
+  end
+
   it "should log a message to the logfile when a hit is recorded" do
     counter.hit "urls.visited"
     tempfile.rewind

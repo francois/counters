@@ -1,12 +1,13 @@
-require "benchmark"
-
 # The redis gem must already be required - we don't require it.
 # This allows callers / users to use any implementation that has the right API.
 
 module Counters
   class Redis < Counters::Base
-    def initialize(redis=Redis.new, base_key="counters")
-      @redis, @base_key = redis, base_key
+    def initialize(redis=Redis.new, options={})
+      super(options)
+
+      @redis    = redis
+      @base_key = options.fetch(:base_key) { raise "Missing :base_key from #{options.inspect}" }
     end
 
     def record_hit(key)
@@ -20,8 +21,8 @@ module Counters
       end
     end
 
-    def ping(key)
-      @redis.hset(@base_key, "pings.#{key}", Time.now.to_i)
+    def record_ping(key)
+      @redis.hset(@base_key, "pings.#{key}", Time.now.utc.to_i)
     end
 
     # Redis requires integer keys, thus we scale all latencies to the nanosecond precision

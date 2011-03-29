@@ -1,9 +1,10 @@
-require "benchmark"
 require "logger"
 
 module Counters
   class File < Counters::Base
-    def initialize(path_or_io_or_logger)
+    def initialize(path_or_io_or_logger, options={})
+      super(options)
+
       @logger = if path_or_io_or_logger.kind_of?(Logger) then
                 path_or_io_or_logger
               elsif path_or_io_or_logger.respond_to?(:<<) then

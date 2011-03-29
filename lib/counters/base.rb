@@ -1,13 +1,21 @@
+require "benchmark"
+
 module Counters
   class Base
+    attr_accessor :namespace
+
+    def initialize(options={})
+      @namespace = options[:namespace]
+    end
+
     def hit(key)
       validate(key)
-      record_hit(key)
+      record_hit(namespaced_key(key))
     end
 
     def magnitude(key, value)
       validate(key)
-      record_magnitude(key, value)
+      record_magnitude(namespaced_key(key), value)
     end
 
     def latency(key, time_in_seconds=nil)
@@ -18,13 +26,13 @@ module Counters
         time_in_seconds = Benchmark.measure { result = yield }.real
       end
 
-      record_latency(key, time_in_seconds)
+      record_latency(namespaced_key(key), time_in_seconds)
       result
     end
 
     def ping(key)
       validate(key)
-      record_ping(key)
+      record_ping(namespaced_key(key))
     end
 
     def record_hit(key)
@@ -51,5 +59,11 @@ module Counters
       key.to_s =~ /\A[.\w]+\Z/i or raise ArgumentError, "Keys can contain only letters, numbers, the underscore (_) and fullstop (.), received #{key.inspect}"
     end
     private :validate
+
+    def namespaced_key(key)
+      return key if namespace.nil?
+      "#{namespace}.#{key}"
+    end
+    private :namespaced_key
   end
 end

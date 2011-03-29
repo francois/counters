@@ -7,7 +7,7 @@ describe Counters::Redis, "integration tests" do
   end
 
   let :counter do
-    Counters::Redis.new(redis, "counters")
+    Counters::Redis.new(redis, :base_key => "counters")
   end
 
   before(:each) do
@@ -15,6 +15,41 @@ describe Counters::Redis, "integration tests" do
   end
 
   it_should_behave_like "all counters"
+
+  context "#initialize" do
+    it "should accept a namepsace in options" do
+      counter = Counters::Redis.new(redis, :namespace => "wine", :base_key => "counters")
+      counter.namespace.should == "wine"
+    end
+  end
+
+  context "given the counter is namespaced" do
+    it "should namespace the key from #hit" do
+      counter.namespace = "juice"
+      counter.hit "foxglove"
+      redis.hget("counters", "hits.juice.foxglove").should == "1"
+    end
+
+    it "should namespace the key from #latency" do
+      counter.namespace = "cocktail"
+      counter.latency "angelica", 200
+      redis.hget("counters", "latencies.cocktail.angelica.nanoseconds").should == (200 * Counters::Redis::SCALING_FACTOR).to_s
+    end
+
+    it "should namespace the key from #magnitude" do
+      counter.namespace = "brew"
+      counter.magnitude "crocus", 100
+      redis.hget("counters", "magnitudes.brew.crocus.value").should == "100"
+    end
+
+    it "should namespace the key from #ping" do
+      counter.namespace = "beer"
+      Timecop.freeze(Time.now.utc) do
+        counter.ping "tulip"
+        redis.hget("counters", "pings.beer.tulip").should == Time.now.utc.to_i.to_s
+      end
+    end
+  end
 
   it "should record 2 hits on 'pages.read'" do
     2.times { counter.hit "pages.read" }

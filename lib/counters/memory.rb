@@ -4,7 +4,9 @@ module Counters
   class Memory < Counters::Base
     attr_reader :hits, :latencies, :magnitudes, :pings
 
-    def initialize
+    def initialize(options={})
+      super(options)
+
       @hits       = Hash.new {|h,k| h[k] = 0}
       @magnitudes = Hash.new {|h,k| h[k] = 0}
       @latencies  = Hash.new {|h,k| h[k] = Array.new}
@@ -16,7 +18,7 @@ module Counters
     end
 
     def record_ping(key)
-      @pings[key] = Time.now
+      @pings[key] = Time.now.utc
     end
 
     def record_latency(key, time_in_seconds)
