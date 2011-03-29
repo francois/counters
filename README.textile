@@ -1,53 +1,65 @@
 h1. Counters
 
-Easily record any metric from anywhere within your system. Metrics are recorded to Redis (using the provided backend), in a single Hash key. You can then extract the keys later and use them with Cacti to generate graphs about anything going on.
+Easily record any metrics from anywhere within your code, using a very simple interface:
 
-h2. Sample Usage
+* <code>ping</code>: When's the last time we saw this thing?
+* <code>hit</code>: Increments a counter
+* <code>magnitude</code>: Measures numerical values
+* <code>latency</code>: Measures time intervals
 
-Let's say you have a crawler. You'd like to record the number of URLs you visit, the number of URLs you skipped due to 304 Not Modified responses, and the number of bytes you consumed, and the amount of time each page takes to process. Here's how you'd do that:
+h2. Example
 
-<pre><code>require "counters"
-require "redis"
-require "rest_client"
-Counter = Counters::Redis.new(Redis.new, "counters")
+Let's say you have a web crawler. There are a ton of things you can measure about your crawler: how many pages it processed (<code>#hit</code>), how many bytes you read (<code>#magnitude</code>), how long did it take to download the page (<code>#latency</code>), how long did it take to parse the raw HTML to a useable format (<code>#latency</code>).
 
-while url = STDIN.gets
-  Counter.hit "crawler.urls"
+<pre><code>require "uri"
+require "open-uri"
+require "counters"
+require "nokogiri"
 
-  response = RestClient.get(url)
-  Counter.magnitude "crawler.bytes.read", response.length
-  next Counter.hit "crawler.urls.skipped" if response.code == 304
+Counter = Counters::Redis.new(Redis.new, :namespace => "crawler", :base_key => "counters")
 
-  Counter.latency "crawler.processing" do
-    # some long and complicated processing
+urls_to_crawl = ["http://blog.teksol.info/", "http://techcrunch.com/", "http://www.google.com/"]
+
+while url = urls_to_crawl.pop
+  Counter.ping "crawler"
+
+  begin
+    Counter.hit "urls_popped"
+
+    puts "Fetching #{url}"
+    raw_html = Counter.latency "download" do
+      URI.parse(url).read
+    end
+
+    Counter.magnitude "bytes_in", raw_html.length
+
+    parsed_html = Counter.latency "html_parsing" do
+      Nokogiri::HTML(raw_html)
+    end
+  rescue
+    Counter.hit "error"
   end
 end
 </code></pre>
 
-Redis will have a single key, named counters here, with the following keys and values in it (after 1 call with a 200 response code):
-
-* hits.crawler.urls = 1
-* magnitudes.crawler.bytes.read = 2041
-* latencies.crawler.processing.count = 1
-* latencies.crawler.processing.nanoseconds = 381000000
-
-h2. Other Implementations
+h2. Other Backends
 
 For testing purposes, there also exists a <code>Counters::Memory</code>. This would be good in test mode, for example. The counters are exposed through accessor methods returning a Hash.
 
-For file logging, you should use <code>Counters::File</code>, which accepts a <code>String</code>, <code>IO</code> or <code>Logger</code> instance. All of these will be transformed to a <code>Logger</code> instance with a very strict format. All events will be logged to the file, one event per line.
+You may log to a file, but be advised the file's size grows very quickly. Counters are stored in the file, one per line, in an easily readable format.
 
 <pre><code>$ irb -r counters
 > Counter = Counters::File.new("counters.log")
  => #<Counters::File:0x00000101a18f18 @logger=#<Logger:0x00000101a18ef0 @progname=nil, @level=0, @default_formatter=#<Logger::Formatter:0x00000101a18ea0 @datetime_format=nil>, @formatter=#<Proc:0x00000101a18bd0@/Users/francois/Projects/counters/lib/counters/file.rb:15 (lambda)>, @logdev=#<Logger::LogDevice:0x00000101a18e28 @shift_size=1048576, @shift_age=0, @filename="counters.log", @dev=#<File:counters.log>, @mutex=#<Logger::LogDevice::LogDeviceMutex:0x00000101a18e00 @mon_owner=nil, @mon_count=0, @mon_mutex=#<Mutex:0x00000101a18d88>>>>> 
 > Counter.hit "crawler.page_read"
- => true 
+ => true
 > Counter.magnitude "crawler.bytes_in", 9_921
- => true 
+ => true
 > Counter.latency "crawler.processing" do sleep 0.3 ; end
- => true 
+ => true
 > Counter.ping "crawler.alive"
- => true 
+ => true
+> exit
 
 $ cat counters.log
 2011-02-21T09:46:21.296326000 - hit: crawler.page_read
@@ -58,6 +70,10 @@ $ cat counters.log
 2011-02-21T09:46:24.280388000 - magnitude: crawler.bytes_in 13291
 2011-02-21T09:46:27.989183000 - latency: crawler.processing 0.3123122982101s
 </code></pre>
+
+You may also output your counters to "StatsD":https://github.com/etsy/statsd. The only change that might be surprising is magnitudes are output as timer events. Magnitudes are used to record
+
+See the file "samples/crawler.rb":blob/master/samples/crawler.rb for a more detailed example.
 
 h2. LICENSE
 
