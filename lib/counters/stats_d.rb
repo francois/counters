@@ -1,13 +1,25 @@
 require "socket"
+require "uri"
 
 module Counters
   class StatsD < Counters::Base
     attr_reader :host, :port, :socket
 
-    def initialize(host, port, options={})
+    def initialize(*args)
+      options = args.last.is_a?(Hash) ? args.pop : Hash.new
       super(options)
 
-      @host, @port = host, port
+      url = case args.length
+            when 0
+              options.fetch(:url) { raise ArgumentError, "Missing :url key from #{args.first}" }
+            when 2
+              "statsd://#{args.first}:#{args.last}"
+            else
+              raise ArgumentError, "Expected either a Hash or a host and port arguments, found: #{args.inspect}"
+            end
+
+      uri = URI.parse(url)
+      @host, @port = uri.host, uri.port
       @socket = options.fetch(:socket) { UDPSocket.new }
     end
 

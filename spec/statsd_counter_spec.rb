@@ -1,5 +1,19 @@
 require "spec_helper"
 
+describe Counters::StatsD, "#initialize" do
+  it "should accept a Hash with a :url key" do
+    counter = Counters::StatsD.new(:url => "statsd://statsd.internal:9991")
+    counter.host.should == "statsd.internal"
+    counter.port.should == 9991
+  end
+
+  it "should accept a host/port pair" do
+    counter = Counters::StatsD.new("127.0.0.1", 8125)
+    counter.host.should == "127.0.0.1"
+    counter.port.should == 8125
+  end
+end
+
 describe Counters::StatsD do
   let :socket do
     double("socket")
