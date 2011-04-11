@@ -2,6 +2,86 @@ require "spec_helper"
 require "logger"
 require "tempfile"
 
+describe Counters::File, "#initialize" do
+  context "given an existing Logger instance" do
+    let! :logger do
+      Logger.new(STDOUT)
+    end
+
+    it "should use the existing Logger instance" do
+      Logger.should_not_receive(:new)
+      Counters::File.new(logger)
+    end
+
+    it "should not change the formatting" do
+      logger.should_not_receive(:formatter=)
+      Counters::File.new(logger)
+    end
+  end
+
+  context "given an object that responds_to?(:add) (such as ActiveSupport::BufferedLogger)" do
+    class FakeLogger
+      def add(*args)
+        raise "called for nothing"
+      end
+    end
+
+    let! :logger do
+      FakeLogger.new
+    end
+
+    it "should use the existing instance" do
+      Logger.should_not_receive(:new)
+      Counters::File.new(logger)
+    end
+  end
+
+  context "given a String (representing a path)" do
+    let :path do
+      "log/mycounters.log"
+    end
+
+    let :logger do
+      double("logger").as_null_object
+    end
+
+    it "should instantiate a Logger with the passed path" do
+      Logger.should_receive(:new).with(path).and_return(logger)
+      Counters::File.new(path)
+    end
+
+    it "should set the formatting" do
+      Logger.stub(:new).and_return(logger)
+      logger.should_receive(:formatter=)
+      Counters::File.new(path)
+    end
+  end
+
+  context "given an IO object" do
+    let :io do
+      STDOUT
+    end
+
+    let :logger do
+      double("logger").as_null_object
+    end
+
+    it "should instantiate a Logger with the passed IO" do
+      Logger.should_receive(:new).with(io).and_return(logger)
+      Counters::File.new(io)
+    end
+
+    it "should set the formatting" do
+      Logger.stub(:new).and_return(logger)
+      logger.should_receive(:formatter=)
+      Counters::File.new(io)
+    end
+  end
+
+  it { lambda { Counters::File.new(nil) }.should raise_error(ArgumentError) }
+  it { lambda { Counters::File.new("")  }.should raise_error(ArgumentError) }
+end
+
 describe Counters::File do
   TIMESTAMP_RE = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,}/
 

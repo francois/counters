@@ -71,7 +71,15 @@ $ cat counters.log
 2011-02-21T09:46:27.989183000 - latency: crawler.processing 0.3123122982101s
 </code></pre>
 
-You may also output your counters to "StatsD":https://github.com/etsy/statsd. The only change that might be surprising is magnitudes are output as timer events. Magnitudes are used to record
+You may also output your counters to "StatsD":https://github.com/etsy/statsd. The only change that might be surprising is magnitudes are output as timer events. Magnitudes are used to record values (such as process RSS, packet sizes, etc).
+
+Instantiate a StatsD instance:
+
+<pre><code>Counter = Counters::StatsD.new("127.0.0.1", 8125, :namespace => "analyzer")
+
+# Alternatively, use a URI:
+Counter = Counters::StatsD.new(:url => "udp://127.0.0.1:8125", :namespace => "crawler")
+</code></pre>
 
 See the file "samples/crawler.rb":blob/master/samples/crawler.rb for a more detailed example.
 
