@@ -81,7 +81,7 @@ Instantiate a StatsD instance:
 Counter = Counters::StatsD.new(:url => "udp://127.0.0.1:8125", :namespace => "crawler")
 </code></pre>
 
-See the file "samples/crawler.rb":blob/master/samples/crawler.rb for a more detailed example.
+See the file "samples/crawler.rb":https://github.com/francois/counters/blob/master/samples/crawler.rb for a more detailed example.
 
 h2. LICENSE
 
