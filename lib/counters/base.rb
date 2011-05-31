@@ -2,9 +2,11 @@ require "benchmark"
 
 module Counters
   class Base
-    attr_accessor :namespace
+
+    attr_writer :namespace
 
     def initialize(options={})
+      @options   = options
       @namespace = options[:namespace]
     end
 
@@ -33,6 +35,16 @@ module Counters
     def ping(key)
       validate(key)
       record_ping(namespaced_key(key))
+    end
+
+    def namespace(*args)
+      if args.empty? then
+        @namespace
+      else
+        other = self.dup
+        other.namespace = [@namespace.to_s, args.first].join(".")
+        other
+      end
     end
 
     def record_hit(key)
@@ -65,5 +77,6 @@ module Counters
       "#{namespace}.#{key}"
     end
     private :namespaced_key
+
   end
 end

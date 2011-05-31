@@ -37,4 +37,9 @@ shared_examples_for "all counters" do
 
     value.should == "the returned value"
   end
+
+  it "should return a sub-namespaced counter on-demand" do
+    other = counter.namespace("sub")
+    other.namespace.should == "#{counter.namespace}.sub"
+  end
 end
