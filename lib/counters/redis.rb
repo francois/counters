@@ -10,8 +10,8 @@ module Counters
       @base_key = options.fetch(:base_key) { raise "Missing :base_key from #{options.inspect}" }
     end
 
-    def record_hit(key)
-      @redis.hincrby(@base_key, "hits.#{key}", 1)
+    def record_hit(key, increment)
+      @redis.hincrby(@base_key, "hits.#{key}", increment)
     end
 
     def record_magnitude(key, amount)

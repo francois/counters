@@ -10,9 +10,9 @@ module Counters
       @namespace = options[:namespace]
     end
 
-    def hit(key)
+    def hit(key, value=1)
       validate(key)
-      record_hit(namespaced_key(key))
+      record_hit(namespaced_key(key), value)
     end
 
     def magnitude(key, value)
@@ -47,7 +47,7 @@ module Counters
       end
     end
 
-    def record_hit(key)
+    def record_hit(key, value)
       raise "Subclass Responsibility Error: must be implemented in instances of #{self.class} but isn't"
     end
     protected :record_hit

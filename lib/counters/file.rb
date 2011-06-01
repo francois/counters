@@ -27,8 +27,8 @@ module Counters
                 end
     end
 
-    def record_hit(key)
-      @logger.info "hit: #{key}"
+    def record_hit(key, increment)
+      @logger.info "hit: #{key}#{ increment == 1 ? "" : ": #{increment}"}"
     end
 
     def record_magnitude(key, magnitude)

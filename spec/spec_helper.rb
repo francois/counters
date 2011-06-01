@@ -38,6 +38,10 @@ shared_examples_for "all counters" do
     value.should == "the returned value"
   end
 
+  it "should allow hitting with a specific value increment" do
+    lambda { counter.hit "tada", 17 }.should_not raise_error
+  end
+
   it "should return a sub-namespaced counter on-demand" do
     other = counter.namespace("sub")
     other.namespace.should == "#{counter.namespace}.sub"

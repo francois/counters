@@ -13,8 +13,8 @@ module Counters
       @pings      = Hash.new
     end
 
-    def record_hit(key)
-      @hits[key] += 1
+    def record_hit(key, increment)
+      @hits[key] += increment
     end
 
     def record_ping(key)

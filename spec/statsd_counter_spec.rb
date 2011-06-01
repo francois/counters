@@ -90,5 +90,11 @@ describe Counters::StatsD do
       socket.should_receive(:send).with(/^pings\.beer\.tulip\b/, anything, anything, anything)
       counter.ping "tulip"
     end
+
+    it "should increment with the #hit value" do
+      counter.namespace = "pow"
+      socket.should_receive(:send).with(/^hits\.pow\.loudness:17\b/, anything, anything, anything)
+      counter.hit "loudness", 17
+    end
   end
 end

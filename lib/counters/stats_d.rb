@@ -27,8 +27,8 @@ module Counters
       socket.send("pings.#{key}:1|c", 0, host, port)
     end
 
-    def record_hit(key)
-      socket.send("hits.#{key}:1|c", 0, host, port)
+    def record_hit(key, increment)
+      socket.send("hits.#{key}:#{increment}|c", 0, host, port)
     end
 
     # StatsD expects millisecond resolution
