@@ -42,8 +42,29 @@ shared_examples_for "all counters" do
     lambda { subject.hit "tada", 17 }.should_not raise_error
   end
 
-  it "should return a sub-namespaced counter on-demand" do
-    other = subject.namespace("sub")
-    other.namespace.should == "#{subject.namespace}.sub"
+  context "given a non-namespaced counter" do
+    before(:each) do
+      subject.namespace = nil
+    end
+
+    it "should return a sub-namespaced counter on-demand" do
+      subject.namespace.to_s.should be_empty
+
+      other = subject.namespace("sub")
+      other.namespace.should == "sub"
+    end
+  end
+
+  context "when the counter is namespaced" do
+    before(:each) do
+      subject.namespace = "origin"
+    end
+
+    it "should return a namespaced counter on-demand" do
+      subject.namespace.to_s.should_not be_empty
+
+      other = subject.namespace("sub")
+      other.namespace.should == "#{subject.namespace}.sub"
+    end
   end
 end

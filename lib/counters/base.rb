@@ -42,7 +42,7 @@ module Counters
         @namespace
       else
         other = self.dup
-        other.namespace = [@namespace.to_s, args.first].join(".")
+        other.namespace = [@namespace.to_s, args.first].reject {|ns| ns.empty?}.join(".")
         other
       end
     end
