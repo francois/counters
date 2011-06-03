@@ -9,29 +9,29 @@ end
 
 shared_examples_for "all counters" do
   it "should raise a ArgumentError when the key includes invalid chars" do
-    lambda { counter.hit "hit!"        }.should raise_error(ArgumentError)
-    lambda { counter.hit "hit counter" }.should raise_error(ArgumentError)
-    lambda { counter.hit "boy.hit?"    }.should raise_error(ArgumentError)
-    lambda { counter.hit "hit/a"       }.should raise_error(ArgumentError)
-    lambda { counter.hit "hit-a"       }.should raise_error(ArgumentError)
-    lambda { counter.hit ""            }.should raise_error(ArgumentError)
-    lambda { counter.hit nil           }.should raise_error(ArgumentError)
+    lambda { subject.hit "hit!"        }.should raise_error(ArgumentError)
+    lambda { subject.hit "hit counter" }.should raise_error(ArgumentError)
+    lambda { subject.hit "boy.hit?"    }.should raise_error(ArgumentError)
+    lambda { subject.hit "hit/a"       }.should raise_error(ArgumentError)
+    lambda { subject.hit "hit-a"       }.should raise_error(ArgumentError)
+    lambda { subject.hit ""            }.should raise_error(ArgumentError)
+    lambda { subject.hit nil           }.should raise_error(ArgumentError)
   end
 
   it "should not raise ArgumentError when the key includes a number" do
-    lambda { counter.hit "hit1" }.should_not raise_error(ArgumentError)
+    lambda { subject.hit "hit1" }.should_not raise_error(ArgumentError)
   end
 
   it "should not raise ArgumentError when the key includes a dot / fullstop" do
-    lambda { counter.hit "hit." }.should_not raise_error(ArgumentError)
+    lambda { subject.hit "hit." }.should_not raise_error(ArgumentError)
   end
 
   it "should not raise ArgumentError when the key includes an underscore" do
-    lambda { counter.hit "hit_" }.should_not raise_error(ArgumentError)
+    lambda { subject.hit "hit_" }.should_not raise_error(ArgumentError)
   end
 
   it "should return the latency block's value" do
-    value = counter.latency "process" do
+    value = subject.latency "process" do
       "the returned value"
     end
 
@@ -39,11 +39,11 @@ shared_examples_for "all counters" do
   end
 
   it "should allow hitting with a specific value increment" do
-    lambda { counter.hit "tada", 17 }.should_not raise_error
+    lambda { subject.hit "tada", 17 }.should_not raise_error
   end
 
   it "should return a sub-namespaced counter on-demand" do
-    other = counter.namespace("sub")
-    other.namespace.should == "#{counter.namespace}.sub"
+    other = subject.namespace("sub")
+    other.namespace.should == "#{subject.namespace}.sub"
   end
 end

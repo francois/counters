@@ -89,7 +89,7 @@ describe Counters::File do
     Tempfile.new("counters.log")
   end
 
-  let :counter do
+  subject do
     Counters::File.new(tempfile)
   end
 
@@ -104,60 +104,60 @@ describe Counters::File do
 
   context "given the counter is namespaced" do
     it "should namespace the key from #hit" do
-      counter.namespace = "juice"
-      counter.hit "foxglove"
+      subject.namespace = "juice"
+      subject.hit "foxglove"
       tempfile.rewind
       tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\shit:\sjuice\.foxglove$/
     end
 
     it "should namespace the key from #latency" do
-      counter.namespace = "cocktail"
-      counter.latency "angelica", 200
+      subject.namespace = "cocktail"
+      subject.latency "angelica", 200
       tempfile.rewind
       tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\slatency:\scocktail\.angelica\s200s$/
     end
 
     it "should namespace the key from #magnitude" do
-      counter.namespace = "brew"
-      counter.magnitude "crocus", 100
+      subject.namespace = "brew"
+      subject.magnitude "crocus", 100
       tempfile.rewind
       tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\smagnitude:\sbrew\.crocus 100$/
     end
 
     it "should namespace the key from #ping" do
-      counter.namespace = "beer"
-      counter.ping "tulip"
+      subject.namespace = "beer"
+      subject.ping "tulip"
       tempfile.rewind
       tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\sping:\sbeer\.tulip$/
     end
   end
 
   it "should log a message to the logfile when a hit is recorded" do
-    counter.hit "urls.visited"
+    subject.hit "urls.visited"
     tempfile.rewind
     tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\shit.*urls\.visited$/
   end
 
   it "should log a message to the logfile when a magnitude is recorded" do
-    counter.magnitude "bytes.read", 2_013
+    subject.magnitude "bytes.read", 2_013
     tempfile.rewind
     tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\smagnitude.*bytes\.read.*2013$/
   end
 
   it "should log a message to the logfile when a latency is recorded" do
-    counter.latency "processing", 0.132 # in seconds
+    subject.latency "processing", 0.132 # in seconds
     tempfile.rewind
     tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\slatency.*processing.*0.132s$/
   end
 
   it "should record a message in the logfile when a ping is recorded" do
-    counter.ping "crawler.alive"
+    subject.ping "crawler.alive"
     tempfile.rewind
     tempfile.read.should =~ /^#{TIMESTAMP_RE}\s-\sping.*crawler\.alive$/
   end
 
   it "should log a message to the logfile when a latency is recorded using a block" do
-    counter.latency "crawling" do
+    subject.latency "crawling" do
       sleep 0.1
     end
 
@@ -166,7 +166,7 @@ describe Counters::File do
   end
 
   it "should raise an ArgumentError when calling #latency with both a block and a latency" do
-    lambda { counter.latency("processing", 0.123) { sleep 0.1 } }.should raise_error(ArgumentError)
+    lambda { subject.latency("processing", 0.123) { sleep 0.1 } }.should raise_error(ArgumentError)
   end
 
   it "should accept a filename on instantiation" do

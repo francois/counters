@@ -27,7 +27,7 @@ describe Counters::StatsD do
     8125
   end
 
-  let :counter do
+  subject do
     Counters::StatsD.new(host, port, :socket => socket)
   end
 
@@ -41,22 +41,22 @@ describe Counters::StatsD do
 
   it "should record a hit as an increment of the key" do
     socket.should_receive(:send).with("hits.tweets_received:1|c", 0, host, port)
-    counter.hit "tweets_received"
+    subject.hit "tweets_received"
   end
 
   it "should record a magnitude as a timer" do
     socket.should_receive(:send).with("magnitudes.bytes_in:381|ms", 0, host, port)
-    counter.magnitude "bytes_in", 381
+    subject.magnitude "bytes_in", 381
   end
 
   it "should record a latency as a timer" do
     socket.should_receive(:send).with("latencies.json_parsing:9|ms", 0, host, port)
-    counter.latency "json_parsing", 0.009
+    subject.latency "json_parsing", 0.009
   end
 
   it "should record a ping as a counter" do
     socket.should_receive(:send).with("pings.tweet_processor:1|c", 0, host, port)
-    counter.ping "tweet_processor"
+    subject.ping "tweet_processor"
   end
 
   context "#initialize" do
@@ -68,33 +68,33 @@ describe Counters::StatsD do
 
   context "given the counter is namespaced" do
     it "should namespace the key from #hit" do
-      counter.namespace = "juice"
+      subject.namespace = "juice"
       socket.should_receive(:send).with(/^hits\.juice\.foxglove\b/, anything, anything, anything)
-      counter.hit "foxglove"
+      subject.hit "foxglove"
     end
 
     it "should namespace the key from #latency" do
-      counter.namespace = "cocktail"
+      subject.namespace = "cocktail"
       socket.should_receive(:send).with(/^latencies\.cocktail\.angelica\b/, anything, anything, anything)
-      counter.latency "angelica", 200
+      subject.latency "angelica", 200
     end
 
     it "should namespace the key from #magnitude" do
-      counter.namespace = "brew"
+      subject.namespace = "brew"
       socket.should_receive(:send).with(/^magnitudes\.brew\.crocus\b/, anything, anything, anything)
-      counter.magnitude "crocus", 100
+      subject.magnitude "crocus", 100
     end
 
     it "should namespace the key from #ping" do
-      counter.namespace = "beer"
+      subject.namespace = "beer"
       socket.should_receive(:send).with(/^pings\.beer\.tulip\b/, anything, anything, anything)
-      counter.ping "tulip"
+      subject.ping "tulip"
     end
 
     it "should increment with the #hit value" do
-      counter.namespace = "pow"
+      subject.namespace = "pow"
       socket.should_receive(:send).with(/^hits\.pow\.loudness:17\b/, anything, anything, anything)
-      counter.hit "loudness", 17
+      subject.hit "loudness", 17
     end
   end
 end
